@@ -58,13 +58,23 @@ Skip this step when the chunk is purely mechanical and has nothing to simplify (
 
 ### 6. Commit
 
-Stage only the files belonging to this chunk (`git add <specific files>`, not `git add -A`) and commit with a short, conventional message describing the chunk:
+Stage only the files belonging to this chunk (`git add <specific files>`, not `git add -A`) and commit with a [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) message. Use scopeless form (`type: description`) — the Conventional Commits scope is optional, and this project prefers to omit it. The subject line should be short and describe what changed; include a body with the **why** whenever the reason isn't obvious from the diff (non-trivial trade-offs, context the reader won't have, why this approach over alternatives). Skip the body only when the change genuinely speaks for itself.
 
 ```
-feat(parser): add tokenizer for quoted strings
-fix(auth): reject empty bearer tokens
-test(cart): cover discount edge cases
-refactor(db): extract connection pool
+feat: add tokenizer for quoted strings
+fix: reject empty bearer tokens
+test: cover discount edge cases
+refactor: extract connection pool
+```
+
+Example with a body (why is non-obvious):
+
+```
+fix: reject empty bearer tokens
+
+Previously an empty Authorization header passed validation and fell
+through to the DB lookup, which returned the first row. Explicit
+rejection avoids the lookup and closes the auth-bypass path.
 ```
 
 One chunk = one commit (the refactor from step 5 is folded into the same commit, not a separate one, since it's part of landing this chunk cleanly). Never amend a previous commit to fold in a new chunk — create a new commit so the history stays honest.
