@@ -50,11 +50,9 @@ Run the test command. Prefer scoping to the affected package/file when the suite
 
 ### 5. Refactor with `/simplify`
 
-Once the chunk is green, invoke the `/simplify` skill to review the code you just wrote for reuse, quality, and efficiency, and apply any fixes it surfaces. Scope the review to this chunk's diff — this isn't a whole-codebase cleanup, it's a focused polish of what just got added.
+Once the chunk is green, **always** invoke the `/simplify` skill on this chunk's diff. Whether the code needs simplifying is `/simplify`'s call, not yours — never pre-judge the chunk as "trivial" or "fine as-is" and skip the invocation. Even a one-line config bump gets `/simplify` run on it; a fast "nothing to change" response is the confirmation, and that's the point.
 
-Then re-run the same test command from step 4. If `/simplify`'s edits broke anything, fix them before committing. If `/simplify` had nothing to change, that's fine — move on.
-
-Skip this step when the chunk is purely mechanical and has nothing to simplify (e.g., a one-line config bump, a pure rename). State briefly why you're skipping so the user can push back.
+Apply any fixes it surfaces, then re-run the test command from step 4. If its edits broke anything, fix them before committing.
 
 ### 6. Commit
 
