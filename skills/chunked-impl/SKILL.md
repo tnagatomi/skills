@@ -85,7 +85,8 @@ Mark the chunk done, then return to step 3 for the next chunk. Give the user a o
 
 - **Never skip hooks** (`--no-verify`) to force a commit through. If a pre-commit hook fails, treat it as a red test.
 - **Never amend a previous commit** to fold in a new chunk — create a new commit so the history stays honest.
-- **Never commit generated artifacts** unless the user has asked for them (build outputs, `.env`, large binaries).
+- **Never commit secret-bearing environment files** (`.env`, `.env.*`, local credential files), even when the user asks. Commit only sanitized templates such as `.env.example` after verifying they contain placeholders instead of real secrets.
+- **Never commit generated artifacts** unless the user has asked for them (build outputs, large binaries).
 - **Never `git add -A` / `git add .`** — stage the chunk's files explicitly so unrelated working-tree changes don't sneak in.
 - **If the baseline is red**, don't start. Surface it.
 - **If tests don't exist**, tell the user. Offer to add them as the first chunk rather than proceeding untested.
