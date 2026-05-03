@@ -21,13 +21,13 @@ Before writing any code, sketch the chunks out loud to the user and confirm dire
 - **Self-contained**: it compiles and its tests pass on its own.
 - **Meaningful**: it represents one logical step (e.g., "add schema", "parse input", "wire handler", "add edge-case test").
 
-Use `TaskCreate` / `TodoWrite` to record the chunk list so both you and the user can see progress.
+Use `TaskCreate` to record the chunk list so both you and the user can see progress.
 
 If the change is trivial (one-line fix, typo), say so and skip this skill — the overhead isn't worth it.
 
 ### 2. Verify the starting state is green
 
-Before the first chunk, run the project's test command once to confirm the baseline is clean. If it's already failing, stop and surface that to the user — don't bury pre-existing failures under new commits.
+Before the first chunk, run the project's test command once to confirm the baseline is clean. If it's already failing, stop and surface that to the user — don't bury pre-existing failures under new commits. If the project has no tests at all, stop and tell the user; offer to add tests as the first chunk rather than proceeding untested.
 
 How to find the test command, in order:
 
@@ -39,16 +39,16 @@ Record the command so every chunk uses the same one.
 
 ### 3. Implement one chunk
 
-Edit only what that chunk needs. Resist the urge to "fix one more thing while I'm here" — that's what the next chunk is for. Writing the test alongside or just before the implementation is encouraged when it's natural, but strict test-first is not required.
+Edit only what that chunk needs. Resist the urge to "fix one more thing while I'm here" — that's what the next chunk is for. Whether to write the test before or alongside the implementation is up to the chunk's natural shape; strict test-first isn't required.
 
 ### 4. Run tests for the chunk
 
-Run the test command. Prefer scoping to the affected package/file when the suite is slow (e.g., `pytest path/to/test_foo.py`, `go test ./pkg/...`, `npm test -- path/to.test.ts`). Run the full suite at least at the end, and any time you touch shared code.
+Run the test command. Prefer scoping to the affected package/file when the suite is slow (e.g., `pytest path/to/test_foo.py`, `go test ./pkg/...`, `npm test -- path/to.test.ts`). Run the full suite at least at the end, and any time you touch shared code (type definitions, common utilities, config files, build/CI scripts).
 
 - **Green**: proceed to step 5.
-- **Red**: fix the issue in place. Do not commit a red chunk. Do not disable tests to make them pass. If the fix balloons, that's a signal the chunk was too big — split it.
+- **Red**: fix the issue in place within the current chunk. Do not commit a red chunk. Do not disable tests to make them pass. If the fix balloons, that's a signal the chunk was too big — stop, return to step 1, and re-plan with smaller chunks.
 
-### 5. Refactor with `/simplify`
+### 5. Run `/simplify` on the chunk
 
 Once the chunk is green, **always** invoke the `/simplify` skill on this chunk's diff. Whether the code needs simplifying is `/simplify`'s call, not yours — never pre-judge the chunk as "trivial" or "fine as-is" and skip the invocation. Even a one-line config bump gets `/simplify` run on it; a fast "nothing to change" response is the confirmation, and that's the point.
 
@@ -75,15 +75,16 @@ through to the DB lookup, which returned the first row. Explicit
 rejection avoids the lookup and closes the auth-bypass path.
 ```
 
-One chunk = one commit (the refactor from step 5 is folded into the same commit, not a separate one, since it's part of landing this chunk cleanly). Never amend a previous commit to fold in a new chunk — create a new commit so the history stays honest.
+One chunk = one commit (any `/simplify` edits from step 5 fold into the same commit, not a separate one, since they're part of landing this chunk cleanly).
 
-### 7. Update the todo list and loop
+### 7. Update todos and continue
 
 Mark the chunk done, then return to step 3 for the next chunk. Give the user a one-line status update ("chunk 2/5 green, committed as `abc1234`") so they can follow along without asking.
 
 ## Guardrails
 
 - **Never skip hooks** (`--no-verify`) to force a commit through. If a pre-commit hook fails, treat it as a red test.
+- **Never amend a previous commit** to fold in a new chunk — create a new commit so the history stays honest.
 - **Never commit generated artifacts** unless the user has asked for them (build outputs, `.env`, large binaries).
 - **Never `git add -A` / `git add .`** — stage the chunk's files explicitly so unrelated working-tree changes don't sneak in.
 - **If the baseline is red**, don't start. Surface it.
