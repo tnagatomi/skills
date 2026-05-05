@@ -1,3 +1,3 @@
 # tnagatomi's skills
 
-tnagatomi's skills collection.
+tnagatomi's Agent Skills collection.
