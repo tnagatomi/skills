@@ -1,9 +1,11 @@
 ---
 name: chunked-impl
-description: Implement a feature or fix incrementally by splitting the work into small chunks, running tests after each chunk, refactoring the just-written code with the /simplify skill once tests pass, and committing. Use this skill whenever the user asks to implement, build, or fix something with phrases like "implement X chunk by chunk", "commit as you go", "test and commit each step", "incremental implementation", "split this into small commits", or any time the user wants steady, verifiable progress with a clean git history rather than a single big change. Prefer this skill for non-trivial changes that have (or should have) automated tests.
+description: For Claude (Claude Code / Claude-based agents) only; depends on Claude's built-in /simplify skill. Implement a feature or fix incrementally by splitting the work into small chunks, running tests after each chunk, refactoring the just-written code with the /simplify skill once tests pass, and committing. Use this skill whenever the user asks to implement, build, or fix something with phrases like "implement X chunk by chunk", "commit as you go", "test and commit each step", "incremental implementation", "split this into small commits", or any time the user wants steady, verifiable progress with a clean git history rather than a single big change. Prefer this skill for non-trivial changes that have (or should have) automated tests.
 ---
 
 # Chunked Implementation
+
+This skill is for Claude (Claude Code / Claude-based agents) and depends on Claude's built-in `/simplify` skill, which ships by default.
 
 Deliver non-trivial changes as a sequence of small, independently verifiable commits. Each chunk ends in a green test run, a `/simplify` pass to clean up what was just written, another green test run, and a commit. Nothing is committed until tests are green.
 
