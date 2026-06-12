@@ -11,6 +11,16 @@ Deliver non-trivial changes as a sequence of small, independently verifiable com
 
 This matters because small, tested commits make regressions easy to bisect, make reviews easier, and let the user stop, resume, or roll back at any point without losing context.
 
+## Precondition: the tdd skill must be installed
+
+This skill cannot function without the **tdd skill** — it drives the red-green-refactor loop for every chunk. Before doing anything else, confirm the tdd skill is available (it appears in your list of available skills).
+
+If the tdd skill is **not** available, **stop immediately**. Do not start planning chunks or writing code. Tell the user it's required and how to install it:
+
+> The `chunked-impl` skill depends on the `tdd` skill, which isn't installed. Install it from https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd, then re-run this skill.
+
+Only proceed to step 1 once the tdd skill is confirmed available.
+
 ## Workflow
 
 Follow these steps. Treat them as a loop, not a one-shot script.
