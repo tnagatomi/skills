@@ -34,6 +34,7 @@ This precondition is **optional**: without it the run still completes and falls 
 ## Principles (do not bend these)
 
 - **Evidence, not verdicts.** Report findings; never emit an approval or pass/fail call. The reviewer and CI decide.
+- **Capture and attach generously.** Screenshot every meaningful state, not just the end — and attach many of them to the comment, not one summary shot. A reviewer would rather scroll a gallery than trust a sentence. **Anything that diverges from the expected behaviour gets its own screenshot, called out inline next to the finding** — surprises are the highest-value evidence, so never drop them to save space.
 - **Always declare the unverified scope.** "Not verified" is a required section. A report that looks complete but hides its gaps is worse than an honest partial one.
 - **Suggest missing test coverage; never commit test code.** When a behaviour you exercised isn't guarded by an automated test, say so in the report as a suggestion. Do not add or commit tests in this run — that bloats the diff and shifts the review focus.
 - **Leave room for exploration.** After the scripted checks, spend a fixed exploration phase poking at the change freely and report any "this feels off" observations. The skill only sees the points it was told to check; the value of an agent is also catching what wasn't written down.
@@ -110,7 +111,7 @@ Fill the template below, then post it to the PR.
 
 #### Posting recipe (agent-browser → GitHub PR comment)
 
-Reuse the **same headed `--profile` session** you drove the test with — don't relaunch. These are the current selectors for github.com's server-rendered PR conversation box; **if one isn't found, the UI changed — `snapshot -i` the comment area to relocate it** rather than guessing.
+These are the current selectors for github.com's server-rendered PR conversation box; **if one isn't found, the UI changed — `snapshot -i` the comment area to relocate it** rather than guessing.
 
 | What | Selector |
 | --- | --- |
@@ -118,10 +119,10 @@ Reuse the **same headed `--profile` session** you drove the test with — don't 
 | Hidden attachment input | `#fc-new_comment_field` |
 | Submit | the `button[type=submit]` **inside `#new_comment_field`'s form** whose text is exactly `Comment` |
 
-1. **Open the PR**, e.g. `agent-browser open https://github.com/<owner>/<repo>/pull/<n>`.
-2. **Fill** the report up to where the screenshot goes: `agent-browser fill '#new_comment_field' "<markdown>"`.
-3. **Upload** the screenshot: `agent-browser upload '#fc-new_comment_field' <shot.png>`. GitHub inserts an `<img src="https://github.com/user-attachments/assets/…">` at the caret. **Wait for the upload to finish before submitting** — poll the textarea until its value contains `user-attachments` (a `![Uploading…]()` placeholder means it's still in flight, and submitting then posts a broken image).
-4. **Append the rest** after the image: focus the textarea, move the caret to the end (`setSelectionRange(value.length, value.length)`), then `agent-browser keyboard inserttext "<rest>"`. *Simpler alternative:* put the screenshot at the very end of the report so no interleaving is needed — fill the whole report, then upload last.
+1. **Open the PR on the GitHub-authenticated profile.** Always pass the profile: `agent-browser open https://github.com/<owner>/<repo>/pull/<n> --headed --profile ~/.agent-browser/profiles/github`. A bare `agent-browser open <url>` (no `--profile`) spins up a **fresh, logged-out** session — you'll see `#new_comment_field` missing and `meta[name=user-login]` empty. ⚠️ If a daemon is already running with other options, `--headed`/`--profile` are **silently ignored** — run `agent-browser close --all` first, then open. **Re-confirm auth after opening the PR** (`meta[name=user-login]` returns your username) before filling.
+2. **Fill** the report up to where the first screenshot goes: `agent-browser fill '#new_comment_field' "<markdown>"`.
+3. **Upload each screenshot at its caption — one fully-confirmed upload at a time.** Attach as many as you took, not one. For every shot, in order: focus the textarea and put the caret at the end (`setSelectionRange(value.length, value.length)`), type its caption line (`agent-browser keyboard inserttext "**<caption>**\n"`), then `agent-browser upload '#fc-new_comment_field' <shot.png>`. GitHub inserts an `<img src="https://github.com/user-attachments/assets/…">` at the caret. **Never fire the next upload until the current one is confirmed** — GitHub's file input drops a second upload that arrives while the first is still in flight, so overlapping uploads silently lose images. Poll until the textarea's `user-attachments` **count has incremented by exactly one** (give it a generous window, ~20s; a `![Uploading…]()` placeholder means still in flight). **If the count doesn't advance, the upload was dropped — re-upload that same file** before moving on. After the loop, assert the final count equals the number of screenshots; if short, re-upload the missing one(s) at the end.
+4. **Append the rest** of the report (Findings onward), caret at end, via `agent-browser keyboard inserttext "<rest>"`. **Interleave divergence shots inline:** when a finding describes behaviour that differed from the expectation, attach its screenshot right there (same caption→upload→wait loop), not only in the top gallery.
 5. **Submit by the form-scoped `Comment` button.** Don't use a bare `find role button "Comment"` — the PR page has other elements named "Comment" (review widgets, the diff viewer) and you'll grab the wrong, often-covered one. Scope to the comment form and pick the submit button by exact text, then click it:
    ```bash
    agent-browser eval "var f=document.querySelector('#new_comment_field').closest('form');var b=[...f.querySelectorAll('button[type=submit]')].find(x=>x.textContent.trim()==='Comment');b.id='ab-submit';'tagged'"
@@ -157,14 +158,20 @@ Write the report — and any message you surface to the user (e.g. the not-signe
 <ordered list of the user actions you took>
 
 ### Evidence (screenshots)
-- <path/to/shot-1.png> — <what it shows>
-- <path/to/shot-2.png> — <what it shows>
+<A gallery — attach a shot for each meaningful state, not one summary. Caption each.>
+**<caption 1>**
+<image 1>
+**<caption 2>**
+<image 2>
+<…as many as you took…>
 
 ### Findings
-<observations from the scripted checks. Neutral, specific. No verdict.>
+<observations from the scripted checks. Neutral, specific. No verdict. Where a
+result diverged from the test point, say so AND attach its screenshot right here
+(not only in the gallery) — surprises are the highest-value evidence.>
 
 ### Out-of-scope observations
-<exploration-phase "this feels off" notes for human triage. "None" if nothing.>
+<exploration-phase "this feels off" notes for human triage, each with its own screenshot where you can. "None" if nothing.>
 
 ### Missing automated-test coverage (suggestions)
 <behaviours exercised by hand that no automated test seems to guard. Suggestions only.>
